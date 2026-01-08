@@ -2,16 +2,48 @@ import requests
 from bs4 import BeautifulSoup
 import time
 
-URL = "https://www.amazon.in/Apple-iPhone-15-128-GB/dp/B0CHX1W1XY/"
-HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36"}
+# TARGET: A practice bookstore specifically for scrapers
+URL = "https://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html"
 
-def check_price():
+HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36"
+}
+
+def track_book_price():
     try:
-        page = requests.get(URL, headers=HEADERS)
-        soup = BeautifulSoup(page.content, 'html.parser')
-        price = soup.find("span", class_="a-price-whole").get_text()
-        print(f"Current Price: {price}")
-    except:
-        print("Could not find price.")
+        print("Connecting to Bookstore...")
+        response = requests.get(URL, headers=HEADERS)
+        
+        if response.status_code == 200:
+            print("Connection Successful!")
+            soup = BeautifulSoup(response.content, 'html.parser')
+            
+            # FIND THE TITLE
+            title = soup.find("h1").get_text()
+            
+            # FIND THE PRICE
+            # On this site, price is always in a <p> tag with class "price_color"
+            price_text = soup.find("p", class_="price_color").get_text()
+            
+            # CLEAN THE PRICE (Remove '£' symbol)
+            # The price looks like "£51.77", so we slice off the first character
+            price_number = float(price_text.replace("£", ""))
+            
+            print("--------------------------------")
+            print(f"Book Title: {title}")
+            print(f"Current Price: £{price_number}")
+            print("--------------------------------")
+            
+            if price_number < 60:
+                print("ALERT: PRICE IS LOW! BUY NOW!")
+            else:
+                print("Price is too high.")
+                
+        else:
+            print("Failed to connect.")
+            
+    except Exception as e:
+        print(f"Error: {e}")
 
-check_price()
+# Run the function
+track_book_price()
