@@ -1,0 +1,17 @@
+import requests
+from bs4 import BeautifulSoup
+import time
+
+URL = "https://www.amazon.in/Apple-iPhone-15-128-GB/dp/B0CHX1W1XY/"
+HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36"}
+
+def check_price():
+    try:
+        page = requests.get(URL, headers=HEADERS)
+        soup = BeautifulSoup(page.content, 'html.parser')
+        price = soup.find("span", class_="a-price-whole").get_text()
+        print(f"Current Price: {price}")
+    except:
+        print("Could not find price.")
+
+check_price()
